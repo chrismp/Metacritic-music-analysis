@@ -151,3 +151,24 @@ eda.UserScoreHistogram <- ggplot(df.albums, aes(x=UserScore)) +
 eda.UserScoreHistogramData <- ggplot_build(eda.UserScoreHistogram)$data[[1]]
 
 ## MULTI-VARIABLE EXPLORATORY DATA ANALYSIS
+eda2.lmStats <- lm(UserScore~Metascore, data=df.albums)
+eda2.lmStatsSummary <- summary(eda2.lmStats)
+eda2.ScatterplotMetascoreUserScore <- ggplot(
+  df.albums,
+  aes(
+    Metascore,
+    UserScore,
+    alpha = UserScores
+  )
+) +
+  theme(legend.position='none') + 
+  geom_point(position = 'jitter') + 
+  geom_smooth(method=lm) +
+  labs(
+    title = paste(
+      "Adj R2 = ",signif(eda2.lmStatsSummary$adj.r.squared, 2),
+      "Intercept =",signif(eda2.lmStats$coef[[1]],2 ),
+      " Slope =",signif(eda2.lmStats$coef[[2]], 2),
+      " P =",signif(eda2.lmStatsSummary$coef[2,4], 2)
+    )
+  )
