@@ -1,11 +1,11 @@
 ## TO DO
-# Convert release dates to R-readable dates
-# For analysis, filter out albums without a Metascore or user score
-# Add "year" column
+# Convert release dates to R-readable dates DONE
+# For analysis, filter out albums without a Metascore or user score DONE
+# Add "year" column DONE
 # Artists' ratings over time
 # labels' ratings over time
 # genres' ratings over time
-# Correlation between Metascore and User Score
+# Correlation between Metascore and User Score DONE 
 # Outliers in above correlations
 # Correlation of critic-userscores over time
 # Above, for genres
@@ -14,12 +14,13 @@
 # install.packages('dplyr')
 # install.packages('reshape2')
 # install.packages('ggplot2')
+# install.packages("lubridate")
 
 library(Rcpp)
 library(dplyr)
 library(reshape2)
 library(ggplot2)
-
+library(lubridate)
 
 ## IMPORT CSV FILES INTO DATAFRAMES
 df.albums <- read.csv("Albums.csv", header = TRUE, na.strings=c("NA","NULL"))
@@ -28,6 +29,8 @@ df.genres <- read.csv("Genres.csv", header = TRUE, na.strings=c("NA","NULL"))
 
 ## CLEAN DATA
 df.albums <- filter(df.albums, is.na(df.albums$Metascore)==FALSE, is.na(df.albums$UserScore)==FALSE)
+df.albums <- mutate(df.albums, ReleaseYear = year(as.Date(ReleaseDate, format = "%b %d, %Y")))
+df.albums <- filter(df.albums, ReleaseYear > 1999)
 
 ## ADD COLUMNS
 df.albums <- mutate(df.albums, UserScoreX10 = UserScore*10)
@@ -60,7 +63,9 @@ eda.Labels <- summarise(
   MeanMetascore = mean(Metascore),
   MeanUserScore = mean(UserScore),
   MedianMetascore = median(Metascore),
-  MedianUserScore = median(UserScore)
+  MedianUserScore = median(UserScore),
+  MeanCriticUserDiff = mean(CriticUserScoreDiff),
+  MedianCriticUserDiff = median(CriticUserScoreDiff)
 )
 eda.LabelsSummary <- summary(eda.Labels)
 eda.LabelCountCutoff <- 0
@@ -84,7 +89,9 @@ eda.Artists <- summarise(
   MeanMetascore = mean(Metascore),
   MeanUserScore = mean(UserScore),
   MedianMetascore = median(Metascore),
-  MedianUserScore = median(UserScore)
+  MedianUserScore = median(UserScore),
+  MeanCriticUserDiff = mean(CriticUserScoreDiff),
+  MedianCriticUserDiff = median(CriticUserScoreDiff)
 )
 eda.ArtistsSummary <- summary(eda.Artists)
 eda.ArtistCountCutoff <- 0
@@ -96,6 +103,32 @@ eda.ArtistTop20Count <-
       y = n
     )
   ) + ggtitle("Artists") +
+  labs(x=NULL, y="Count") + 
+  geom_bar(stat="identity") + 
+  coord_flip()
+
+eda.ReleaseYears <- summarise(
+  group_by(df.albums, ReleaseYear),
+  n = n(),
+  CountCriticScores = sum(CriticScores),
+  CountUserScores = sum(UserScores),
+  MeanMetascore = mean(Metascore),
+  MeanUserScore = mean(UserScore),
+  MedianMetascore = median(Metascore),
+  MedianUserScore = median(UserScore),
+  MeanCriticUserDiff = mean(CriticUserScoreDiff),
+  MedianCriticUserDiff = median(CriticUserScoreDiff)
+)
+eda.ReleaseYearsSummary <- summary(eda.ReleaseYears)
+eda.ReleaseYearCountCutoff <- 0
+eda.ReleaseYearTop20Count <- 
+  ggplot(
+    eda.ReleaseYears[eda.ReleaseYears$n >= eda.ReleaseYearCountCutoff,],
+    aes(
+      x = reorder(ReleaseYear, n), 
+      y = n
+    )
+  ) + ggtitle("Release years") +
   labs(x=NULL, y="Count") + 
   geom_bar(stat="identity") + 
   coord_flip()
