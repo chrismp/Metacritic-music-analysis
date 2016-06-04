@@ -187,8 +187,8 @@ eda2.ScatterplotMetascoreUserScore <- ggplot(
   df.albums,
   aes(
     Metascore,
-    UserScore#,
-    # alpha = UserScores
+    UserScore,
+    alpha = 0.50
   )
 ) +
   theme(legend.position='none') + 
@@ -235,6 +235,26 @@ for (year in years) {
   print(plot)
 }
 
+eda2.lmStatsDummy <- lm(UserScore~Metascore, data=df.albums)
+eda2.lmStatsSummaryDummy <- summary(eda2.lmStatsDummy)
+plot <- ggplot(
+  df.albums,
+  aes(
+    Metascore,
+    UserScore
+  )
+) +
+  theme(legend.position='none') + 
+  geom_point() + 
+  geom_point(position = 'jitter') +
+  geom_smooth(method=lm) +
+  facet_grid(ReleaseYear ~ .) +
+  labs(
+    title = "Metacritic music critic scores vs. user scores"
+  ) +
+  coord_flip()
+print(plot)
+
 eda2.BoxPlotMetascoresByYear <- ggplot(
   df.albums, 
   aes(ReleaseYear, Metascore)
@@ -258,8 +278,8 @@ print(eda2.BoxPlotUserScoresByYear)
 eda2.LineScoresByYear <- ggplot(eda.ReleaseYears, aes(ReleaseYear)) +
                          geom_line(aes(y=MedianMetascore, colour="Metascore")) +
                          geom_line(aes(y=MedianUserScoreX10, colour="User score times 10")) +
-                         labs(x=NULL, y="Median score") +
-                         theme(legend.position="top") +
+                         labs(x="Year", y="Median score", title="Metacritic music scores by critics and fans") +
+                         theme(legend.position="top", legend.title=element_blank()) +
                          expand_limits(y=50) +
                          scale_y_continuous(breaks = seq(0,100,10))
 print(eda2.LineScoresByYear)
@@ -273,3 +293,18 @@ eda2.StackedBarUserRatingCategoriesByYear <- ggplot(data = df.albums, aes(x=Rele
                                          theme(legend.position="top") +
                                          coord_flip()
 print(eda2.StackedBarUserRatingCategoriesByYear)
+
+df.albums$MetascoreCategory2 <- factor(df.albums$MetascoreCategory, levels = c("Bad","Mixed","Good"))
+eda2.StackedBarUserRatingCategoriesByYear <- ggplot(data = df.albums, aes(x=ReleaseYear)) +
+  geom_bar(aes(fill=MetascoreCategory2), position = "fill") +
+  scale_x_reverse(breaks = seq(2000,2016,1)) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x="Year", y=NULL, title="Metacritic music critic scores", fill='') +
+  theme(legend.position="top") +
+  coord_flip()
+print(eda2.StackedBarUserRatingCategoriesByYear)
+
+
+
+
+
