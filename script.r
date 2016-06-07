@@ -12,12 +12,40 @@
 # install.packages('reshape2')
 # install.packages('ggplot2')
 # install.packages("lubridate")
+# install.packages("RColorBrewer")
 
 library(Rcpp)
 library(dplyr)
 library(reshape2)
 library(ggplot2)
 library(lubridate)
+library(RColorBrewer)
+
+chartTheme <- function(){
+  palette <- brewer.pal("Set1",n=9) # Run display.brewer.all() to see all RColorBrewer palettes
+  color.background = "#FCFCFC"
+  color.grid.major = "#DDDDDD"
+  color.axis.title = "#333333"
+  color.axis.text = "#333333"
+  color.title = "#333333"
+  
+  theme_bw(base_size = 12) +
+  theme(panel.background = element_rect(fill=color.background, colour=color.background)) +
+  theme(plot.background = element_rect(fill=color.background, colour=color.background)) +
+  theme(panel.border = element_rect(color=color.background)) +
+  
+  theme(legend.position="top") +
+  theme(legend.background = element_rect(fill=color.background)) +
+  theme(legend.text = element_text(size=7, color=color.axis.title)) +
+  
+  theme(plot.title = element_text(color=color.title, size=12, vjust=1.25)) + 
+  theme(axis.text.x = element_text(size=10, color=color.axis.text)) +
+  theme(axis.text.y = element_text(size=10, color=color.axis.text)) +
+  theme(axis.title.x = element_text(size=10, color=color.axis.title, vjust=0)) +
+  theme(axis.title.y = element_text(size=10, color=color.axis.title, vjust=1.25)) +
+    
+  theme(plot.margin = unit(c(0.35, 0.2, 0.3, 0.35), "cm"))
+}
 
 ## IMPORT CSV FILES INTO DATAFRAMES
 df.albums <- read.csv("Albums.csv", header = TRUE, na.strings=c("NA","NULL"))
@@ -290,17 +318,19 @@ eda2.StackedBarUserRatingCategoriesByYear <- ggplot(data = df.albums, aes(x=Rele
                                          scale_x_reverse(breaks = seq(2000,2016,1)) +
                                          scale_y_continuous(breaks = NULL) +
                                          labs(x="Year", y=NULL, title="Metacritic music user scores", fill='') +
-                                         theme(legend.position="top") +
+                                         scale_fill_manual(valsues=c("#FF0000","#FFCC33","#66CC33")) +
+                                         chartTheme() +
                                          coord_flip()
 print(eda2.StackedBarUserRatingCategoriesByYear)
 
 df.albums$MetascoreCategory2 <- factor(df.albums$MetascoreCategory, levels = c("Bad","Mixed","Good"))
 eda2.StackedBarUserRatingCategoriesByYear <- ggplot(data = df.albums, aes(x=ReleaseYear)) +
   geom_bar(aes(fill=MetascoreCategory2), position = "fill") +
+  scale_fill_manual(values=c("#FF0000","#FFCC33","#66CC33")) +
   scale_x_reverse(breaks = seq(2000,2016,1)) +
   scale_y_continuous(breaks = NULL) +
   labs(x="Year", y=NULL, title="Metacritic music critic scores", fill='') +
-  theme(legend.position="top") +
+  chartTheme() +
   coord_flip()
 print(eda2.StackedBarUserRatingCategoriesByYear)
 
