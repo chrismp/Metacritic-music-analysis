@@ -48,7 +48,7 @@ chartTheme <- function(){
 }
 
 ## IMPORT CSV FILES INTO DATAFRAMES
-df.albums <- read.csv("Albums.csv", header = TRUE, na.strings=c("NA","NULL"))
+df.albums <- read.csv("Albums.csv", header = TRUE, na.strings=c("NA","NULL")) %>% filter(UserScores >= 10)
 df.criticReviews <- read.csv("CriticReviews.csv", header = TRUE, na.strings=c("NA","NULL"))
 df.genres <- read.csv("Genres.csv", header = TRUE, na.strings=c("NA","NULL"))
 
