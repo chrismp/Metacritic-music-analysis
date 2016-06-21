@@ -55,7 +55,7 @@ df.genres <- read.csv("Genres.csv", header = TRUE, na.strings=c("NA","NULL"))
 ## CLEAN DATA
 df.albums <- filter(df.albums, is.na(df.albums$Metascore)==FALSE, is.na(df.albums$UserScore)==FALSE)
 df.albums <- mutate(df.albums, ReleaseYear = year(as.Date(ReleaseDate, format = "%b %d, %Y")))
-df.albums <- filter(df.albums, ReleaseYear > 1999)
+# df.albums <- filter(df.albums, ReleaseYear > 1999) # Useful if comparing only albums from the 21st century
 df.albums <- filter(df.albums, !grepl("\\[",Album)) # Remove Albums containing '[', which means it's a box set, reissue, live album, etc
 
 ## ADD COLUMNS
