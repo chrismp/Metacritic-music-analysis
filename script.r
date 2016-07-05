@@ -55,7 +55,7 @@ df.genres <- read.csv("Genres.csv", header = TRUE, na.strings=c("NA","NULL"))
 ## CLEAN DATA
 df.albums <- filter(df.albums, is.na(df.albums$Metascore)==FALSE, is.na(df.albums$UserScore)==FALSE)
 df.albums <- mutate(df.albums, ReleaseYear = year(as.Date(ReleaseDate, format = "%b %d, %Y")))
-# df.albums <- filter(df.albums, ReleaseYear > 1999) # Useful if comparing only albums from the 21st century
+df.albums <- filter(df.albums, ReleaseYear > 1999) # Useful if comparing only albums from the 21st century
 df.albums <- filter(df.albums, !grepl("\\[",Album)) # Remove Albums containing '[', which means it's a box set, reissue, live album, etc
 
 ## ADD COLUMNS
@@ -233,6 +233,7 @@ eda2.ScatterplotMetascoreUserScore <- ggplot(
   )
 print(eda2.ScatterplotMetascoreUserScore)
 
+# Print scatterplots for each year, Metascore x UserScore
 years <- sort(unique(df.albums$ReleaseYear), decreasing = FALSE) # vector of 2000,2001...2016
 for (year in years) {
   df.dummy <- filter(df.albums, ReleaseYear == year)
@@ -263,6 +264,7 @@ for (year in years) {
   print(plot)
 }
 
+# Print multi-scatterplot chart for each year
 eda2.lmStatsDummy <- lm(UserScore~Metascore, data=df.albums)
 eda2.lmStatsSummaryDummy <- summary(eda2.lmStatsDummy)
 plot <- ggplot(
@@ -283,6 +285,7 @@ plot <- ggplot(
   coord_flip()
 print(plot)
 
+# Metascores by year, boxplot
 eda2.BoxPlotMetascoresByYear <- ggplot(
   df.albums, 
   aes(ReleaseYear, Metascore)
@@ -293,6 +296,7 @@ eda2.BoxPlotMetascoresByYear <- ggplot(
   labs(title="Metacritic Metascores by year")
 print(eda2.BoxPlotMetascoresByYear)
 
+# User scores by year, boxplots
 eda2.BoxPlotUserScoresByYear <- ggplot(
   df.albums, 
   aes(ReleaseYear, UserScore)
@@ -303,6 +307,7 @@ eda2.BoxPlotUserScoresByYear <- ggplot(
   labs(title="Metacritic music user scores by year")
 print(eda2.BoxPlotUserScoresByYear)
 
+# Metascore vs user score, by year
 eda2.LineScoresByYear <- ggplot(eda.ReleaseYears, aes(ReleaseYear)) +
                          geom_line(aes(y=MedianMetascore, colour="Metascore")) +
                          geom_line(aes(y=MedianUserScoreX10, colour="User score times 10")) +
@@ -312,13 +317,14 @@ eda2.LineScoresByYear <- ggplot(eda.ReleaseYears, aes(ReleaseYear)) +
                          scale_y_continuous(breaks = seq(0,100,10))
 print(eda2.LineScoresByYear)
 
+# Stacked bar chart, User score by year
 df.albums$UserScoreCategory2 <- factor(df.albums$UserScoreCategory, levels = c("Bad","Mixed","Good"))
 eda2.StackedBarUserRatingCategoriesByYear <- ggplot(data = df.albums, aes(x=ReleaseYear)) +
                                          geom_bar(aes(fill=UserScoreCategory2), position = "fill") +
                                          scale_x_reverse(breaks = seq(2000,2016,1)) +
                                          scale_y_continuous(breaks = NULL) +
                                          labs(x="Year", y=NULL, title="Metacritic music user scores", fill='') +
-                                         scale_fill_manual(valsues=c("#FF0000","#FFCC33","#66CC33")) +
+                                         scale_fill_manual(values=c("#FF0000","#FFCC33","#66CC33")) +
                                          chartTheme() +
                                          coord_flip()
 print(eda2.StackedBarUserRatingCategoriesByYear)
